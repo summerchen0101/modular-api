@@ -59,6 +59,10 @@ export default class ApiHub{
     return formData
   }
 
+  RegisterModule() {
+
+  }
+
   createModule(name: string, module: Module, moduleConfig: ReqConfig = {}): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
