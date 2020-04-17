@@ -1,8 +1,9 @@
-import Api from '../src/main'
+import Api from '../dist/main.js'
 import UserApis from './api/user.json'
 import PostApis from './api/post.json'
 
-console.log(UserApis)
+console.log(Api)
+
 
 const ApiInstance = Api.create({baseURL: 'https://jsonplaceholder.typicode.com'})
 
