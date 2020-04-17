@@ -10,7 +10,7 @@ export default class ApiHub{
   private axiosInstance: AxiosInstance
 
   get axiosConfig(): AxiosRequestConfig {
-    let config: AxiosRequestConfig = {
+    const config: AxiosRequestConfig = {
       baseURL: this.config.baseURL,
     }
     return config
@@ -23,45 +23,49 @@ export default class ApiHub{
     this.axiosInstance = axios.create(this.axiosConfig)
   }
 
-  onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig) {
+  onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
     this.axiosInstance.interceptors.request.use(config => fn(config) || config)
   }
 
-  onResponse(fn: (response: AxiosResponse) => AxiosResponse) {
+  onResponse(fn: (response: AxiosResponse) => AxiosResponse): void {
     this.axiosInstance.interceptors.response.use(response => fn(response) || response)
   }
-  onRequestError(fn: (config: AxiosError) => AxiosError) {
+
+  onRequestError(fn: (config: AxiosError) => AxiosError): void {
     this.axiosInstance.interceptors.request.use(undefined, error => fn(error) || Promise.reject(error))
   }
-  onResponseError(fn: (config: AxiosError) => AxiosError) {
+
+  onResponseError(fn: (config: AxiosError) => AxiosError): void {
     this.axiosInstance.interceptors.response.use(undefined, error => fn(error) || Promise.reject(error))
   }
-  onError(fn: (config: AxiosError) => AxiosError) {
+
+  onError(fn: (config: AxiosError) => AxiosError): void {
     this.onRequestError(fn)
     this.onResponseError(fn)
   }
 
-  setConfig(config: ReqConfig) {
+  setConfig(config: ReqConfig): void {
     this.config = {...this.config, ...config}
   }
-  static create(extendConfig?: ReqConfig) {
+
+  static create(extendConfig?: ReqConfig): ApiHub {
     return new ApiHub(extendConfig)
   }
 
-  toFormData(data: StringIndex) {
+  toFormData(data: StringIndex): FormData {
     const formData = new FormData()
-    for(let key in data) {
+    for(const key in data) {
       formData.append(key, data[key])
     }
     return formData
   }
 
-  createModule(name: string, module: Module, moduleConfig: ReqConfig = {}) {
-    let modulehub: ModuleHub = {}
+  createModule(name: string, module: Module, moduleConfig: ReqConfig = {}): ModuleHub {
+    const modulehub: ModuleHub = {}
     for(const key in module.apis) {
-      modulehub[key] = (reqData: ApiData, apiConfig: ReqConfig = {}) => {
-        let url = '', query, data, config, api
-        api = module.apis[key]
+      modulehub[key] = (reqData: ApiData, apiConfig: ReqConfig = {}): Promise<ResponseData> => {
+        let url = '', query, data
+        const api = module.apis[key]
 
         if(typeof reqData === 'object') {
           url = api.url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
@@ -77,7 +81,7 @@ export default class ApiHub{
             data = reqData.data
           }
         }
-        config = {...this.config, ...moduleConfig, ...apiConfig}
+        const config = {...this.config, ...moduleConfig, ...apiConfig}
         if(config.type === 'form') {
           data = data && this.toFormData(data)
         }
@@ -100,33 +104,33 @@ export default class ApiHub{
 
 
 interface ReqConfig extends AxiosRequestConfig {
-  baseURL?: string
-  type?: 'json' | 'form'
+  baseURL?: string;
+  type?: 'json' | 'form';
 }
 
 interface ApiData {
-  params?: StringIndex
-  query?: StringIndex
-  data?: StringIndex
+  params?: StringIndex;
+  query?: StringIndex;
+  data?: StringIndex;
 }
 interface ApiLibItem {
-  method: MethodType
-  url: string
+  method: MethodType;
+  url: string;
 }
 interface Module {
-  base: string,
+  base: string;
   apis: {
-    [key: string]: ApiLibItem
-  }
+    [key: string]: ApiLibItem;
+  };
 }
 
 interface ModuleHub {
-  [key: string]: (data: any, config?: ReqConfig) => Promise<ResponseData>
+  [key: string]: (data: ApiData, config?: ReqConfig) => Promise<ResponseData>;
 }
 
 interface StringIndex {
-  [key: string]: any
-  [index: number]: any
+  [key: string]: any;
+  [index: number]: any;
 }
 
 type MethodType = "get" | 'post' | 'put' | 'delete'
