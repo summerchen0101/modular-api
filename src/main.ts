@@ -2,6 +2,7 @@ import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig} from 'axios'
 import path from 'path'
 
 const defaultConfig: ReqConfig = {
+  type: 'json'
 }
 
 export default class ApiHub{
@@ -9,9 +10,10 @@ export default class ApiHub{
   private axiosInstance: AxiosInstance
 
   get axiosConfig(): AxiosRequestConfig {
-    return {
-      baseURL: this.config.baseURL
+    let config: AxiosRequestConfig = {
+      baseURL: this.config.baseURL,
     }
+    return config
   }
 
   private constructor(config?: ReqConfig) {
@@ -21,11 +23,23 @@ export default class ApiHub{
     this.axiosInstance = axios.create(this.axiosConfig)
   }
 
+  onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig) {
+    this.axiosInstance.interceptors.request.use(config => fn(config) || config)
+  }
+
   setConfig(config: ReqConfig) {
     this.config = {...this.config, ...config}
   }
   static create(extendConfig?: ReqConfig) {
     return new ApiHub(extendConfig)
+  }
+
+  toFormData(data: StringIndex) {
+    const formData = new FormData()
+    for(let key in data) {
+      formData.append(key, data[key])
+    }
+    return formData
   }
 
   createModule(name: string, module: Module, moduleConfig: ReqConfig = {}) {
@@ -49,11 +63,14 @@ export default class ApiHub{
             data = reqData.data
           }
         }
-        config = {...moduleConfig, ...apiConfig}
+        config = {...this.config, ...moduleConfig, ...apiConfig}
+        if(config.type === 'form') {
+          data = data && this.toFormData(data)
+        }
 
         const axiosConfig: AxiosRequestConfig = {
           method: api.method,
-          url: path.join(module.baseUrl, url),
+          url: path.join(module.base, url),
           params: query,
           data,
           ...config
@@ -68,7 +85,7 @@ export default class ApiHub{
 }
 
 
-interface ReqConfig {
+interface ReqConfig extends AxiosRequestConfig {
   baseURL?: string
   type?: 'json' | 'form'
 }
@@ -84,7 +101,7 @@ interface ApiLibItem {
   url: string
 }
 interface Module {
-  baseUrl: string,
+  base: string,
   apis: {
     [key: string]: ApiLibItem,
     getList: ApiLibItem

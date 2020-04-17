@@ -1,5 +1,5 @@
 {
-  "baseUrl": "users",
+  "base": "users",
   "apis": {
     "getList": {
       "method": "get",

@@ -1,5 +1,5 @@
 {
-  "baseUrl": "posts",
+  "base": "posts",
   "apis": {
     "getList": {
       "method": "get",
@@ -7,7 +7,7 @@
     },
     "getItem": {
       "method": "get",
-      "url": "{{id}}"
+      "url": "{id}"
     }
   }
 }
