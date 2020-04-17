@@ -12,18 +12,25 @@ ApiInstance.onRequest(config => {
 ApiInstance.onError(err => {
   console.log(err)
 })
-const UserModule = ApiInstance.createModule('User', UserApis)
 // const PostModule = ApiInstance.createModule('Post', PostApis)
+ApiInstance.registerModule('user', UserApis)
+ApiInstance.registerModule('post', PostApis)
 
-UserModule.getList().then(res=> {
+const $api = ApiInstance.getModules()
+$api.user.getList().then(res => {
   console.log(res)
 })
-UserModule.getItem({params: {id: 3}, query: {time: new Date().getTime()}}).then(res=> {
-  console.log(res)
-})
-UserModule.addItem({query: {time: new Date().getTime()}, data: {name: 'summer'}}).then(res=> {
-  console.log(res)
-})
+
+// const UserModule = ApiInstance.createModule(UserApis)
+// UserModule.getList().then(res=> {
+//   console.log(res)
+// })
+// UserModule.getItem({params: {id: 3}, query: {time: new Date().getTime()}}).then(res=> {
+//   console.log(res)
+// })
+// UserModule.addItem({query: {time: new Date().getTime()}, data: {name: 'summer'}}).then(res=> {
+//   console.log(res)
+// })
 // UserModule.addItem({query: {time: new Date().getTime()}, data: {name: 'summer', age: 23}}, {type: 'form'}).then(res=> {
 //   console.log(res)
 // })

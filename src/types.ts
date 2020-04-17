@@ -1,5 +1,9 @@
 import { AxiosRequestConfig } from 'axios'
 
+export interface ModuleRoot {
+  [moduleName: string]: ModuleHub;
+}
+
 export interface ReqConfig extends AxiosRequestConfig {
   baseURL?: string;
   type?: 'json' | 'form';

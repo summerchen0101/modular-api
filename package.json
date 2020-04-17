@@ -1,11 +1,14 @@
 {
   "name": "ts-lab",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/main.js",
   "license": "MIT",
   "scripts": {
     "start": "lite-server"
   },
+  "files": [
+    "dist/main.js"
+  ],
   "devDependencies": {
     "@types/node": "^13.11.1",
     "@typescript-eslint/eslint-plugin": "^2.28.0",

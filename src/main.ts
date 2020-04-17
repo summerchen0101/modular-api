@@ -1,5 +1,5 @@
 import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
-import { ReqConfig, StringIndex, Module, ModuleHub, ApiData, ResponseData} from './types'
+import { ReqConfig, StringIndex, Module, ModuleHub, ApiData, ResponseData, ModuleRoot} from './types'
 import path from 'path'
 import defaultConfig from './default'
 
@@ -7,6 +7,7 @@ import defaultConfig from './default'
 export default class ApiHub{
   private config: ReqConfig = defaultConfig
   private axiosInstance: AxiosInstance
+  private moduleRoot: ModuleRoot = {}
 
   get axiosConfig(): AxiosRequestConfig {
     const config: AxiosRequestConfig = {
@@ -59,11 +60,15 @@ export default class ApiHub{
     return formData
   }
 
-  RegisterModule() {
-
+  getModules(): ModuleRoot {
+    return this.moduleRoot
   }
 
-  createModule(name: string, module: Module, moduleConfig: ReqConfig = {}): ModuleHub {
+  registerModule(moduleName: string, module: Module, moduleConfig: ReqConfig = {}): void {
+    this.moduleRoot[moduleName] = this.createModule(module, moduleConfig)
+  }
+
+  createModule(module: Module, moduleConfig: ReqConfig = {}): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
       modulehub[key] = (reqData: ApiData, apiConfig: ReqConfig = {}): Promise<ResponseData> => {
