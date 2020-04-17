@@ -6,6 +6,12 @@ console.log(UserApis)
 
 const ApiInstance = Api.create({baseURL: 'https://jsonplaceholder.typicode.com'})
 
+ApiInstance.onRequest(config => {
+  console.log(config)
+})
+ApiInstance.onError(err => {
+  console.log(err)
+})
 const UserModule = ApiInstance.createModule('User', UserApis)
 // const PostModule = ApiInstance.createModule('Post', PostApis)
 

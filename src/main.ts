@@ -1,4 +1,4 @@
-import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig} from 'axios'
+import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
 import path from 'path'
 
 const defaultConfig: ReqConfig = {
@@ -25,6 +25,20 @@ export default class ApiHub{
 
   onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig) {
     this.axiosInstance.interceptors.request.use(config => fn(config) || config)
+  }
+
+  onResponse(fn: (response: AxiosResponse) => AxiosResponse) {
+    this.axiosInstance.interceptors.response.use(response => fn(response) || response)
+  }
+  onRequestError(fn: (config: AxiosError) => AxiosError) {
+    this.axiosInstance.interceptors.request.use(undefined, error => fn(error) || Promise.reject(error))
+  }
+  onResponseError(fn: (config: AxiosError) => AxiosError) {
+    this.axiosInstance.interceptors.response.use(undefined, error => fn(error) || Promise.reject(error))
+  }
+  onError(fn: (config: AxiosError) => AxiosError) {
+    this.onRequestError(fn)
+    this.onResponseError(fn)
   }
 
   setConfig(config: ReqConfig) {
@@ -90,7 +104,6 @@ interface ReqConfig extends AxiosRequestConfig {
   type?: 'json' | 'form'
 }
 
-
 interface ApiData {
   params?: StringIndex
   query?: StringIndex
@@ -103,8 +116,7 @@ interface ApiLibItem {
 interface Module {
   base: string,
   apis: {
-    [key: string]: ApiLibItem,
-    getList: ApiLibItem
+    [key: string]: ApiLibItem
   }
 }
 
