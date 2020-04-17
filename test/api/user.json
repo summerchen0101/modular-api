@@ -1,0 +1,17 @@
+{
+  "baseUrl": "users",
+  "apis": {
+    "getList": {
+      "method": "get",
+      "url": ""
+    },
+    "getItem": {
+      "method": "get",
+      "url": "{id}"
+    },
+    "addItem": {
+      "method": "post",
+      "url": ""
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "ts-lab",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "lite-server"
+  },
+  "devDependencies": {
+    "@types/node": "^13.11.1",
+    "lite-server": "^2.5.4",
+    "query-string": "^6.12.1",
+    "ts-loader": "^7.0.0",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "handlebars": "^4.7.6",
+    "lodash": "^4.17.15"
+  }
+}
