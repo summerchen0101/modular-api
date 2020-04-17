@@ -1,9 +1,8 @@
 import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
+import { ReqConfig, StringIndex, Module, ModuleHub, ApiData, ResponseData} from './types'
 import path from 'path'
+import defaultConfig from './default'
 
-const defaultConfig: ReqConfig = {
-  type: 'json'
-}
 
 export default class ApiHub{
   private config: ReqConfig = defaultConfig
@@ -103,37 +102,5 @@ export default class ApiHub{
 }
 
 
-interface ReqConfig extends AxiosRequestConfig {
-  baseURL?: string;
-  type?: 'json' | 'form';
-}
 
-interface ApiData {
-  params?: StringIndex;
-  query?: StringIndex;
-  data?: StringIndex;
-}
-interface ApiLibItem {
-  method: MethodType;
-  url: string;
-}
-interface Module {
-  base: string;
-  apis: {
-    [key: string]: ApiLibItem;
-  };
-}
-
-interface ModuleHub {
-  [key: string]: (data: ApiData, config?: ReqConfig) => Promise<ResponseData>;
-}
-
-interface StringIndex {
-  [key: string]: any;
-  [index: number]: any;
-}
-
-type MethodType = "get" | 'post' | 'put' | 'delete'
-
-type ResponseData = object
 
