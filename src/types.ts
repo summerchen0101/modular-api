@@ -1,5 +1,12 @@
 import { AxiosRequestConfig } from 'axios'
 
+export type ErrorMap = StringIndex
+
+export interface ErrorHandlerConfig{
+  targetKey?: string;
+  validCode?: Array<number | string>;
+}
+
 export interface ModuleRoot {
   [moduleName: string]: ModuleHub;
 }

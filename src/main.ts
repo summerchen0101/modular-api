@@ -1,63 +1,38 @@
-import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
-import { ReqConfig, StringIndex, Module, ModuleHub, ApiData, ResponseData, ModuleRoot} from './types'
+import { AxiosRequestConfig } from 'axios'
+import { ReqConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap } from './types';
 import path from 'path'
-import defaultConfig from './default'
+import Request from './request';
+import ErrorHandler from './error';
 
-
-export default class ApiHub{
-  private config: ReqConfig = defaultConfig
-  private axiosInstance: AxiosInstance
+export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
+  private errHandler: ErrorHandler | null = null
 
-  get axiosConfig(): AxiosRequestConfig {
-    const config: AxiosRequestConfig = {
-      baseURL: this.config.baseURL,
-    }
-    return config
+  private constructor(reqConfig?: ReqConfig) {
+    super(reqConfig)
   }
 
-  private constructor(config?: ReqConfig) {
-    if(config) {
-      this.config = {...this.config, ...config}
-    }
-    this.axiosInstance = axios.create(this.axiosConfig)
-  }
-
-  onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
-    this.axiosInstance.interceptors.request.use(config => fn(config) || config)
-  }
-
-  onResponse(fn: (response: AxiosResponse) => AxiosResponse): void {
-    this.axiosInstance.interceptors.response.use(response => fn(response) || response)
-  }
-
-  onRequestError(fn: (config: AxiosError) => AxiosError): void {
-    this.axiosInstance.interceptors.request.use(undefined, error => fn(error) || Promise.reject(error))
-  }
-
-  onResponseError(fn: (config: AxiosError) => AxiosError): void {
-    this.axiosInstance.interceptors.response.use(undefined, error => fn(error) || Promise.reject(error))
-  }
-
-  onError(fn: (config: AxiosError) => AxiosError): void {
-    this.onRequestError(fn)
-    this.onResponseError(fn)
-  }
-
-  setConfig(config: ReqConfig): void {
-    this.config = {...this.config, ...config}
+  registerErrorHandler(errMap: ErrorMap, errHandlerConfig: ErrorHandlerConfig): void {
+    this.errHandler = ErrorHandler.create(errHandlerConfig)
+    const targetKey = this.errHandler.errTargetKey
+    this.onResponse(res => {
+      const targetValue = res.data[targetKey]
+      if(targetValue === undefined) {
+        throw new Error(`Cannot find the 'targetKey': ${targetKey}`)
+      }
+      const result = this.errHandler && this.errHandler.validateCode(targetValue)
+      if(!result) {
+        if(!errMap[targetValue]) {
+          throw new Error(`Cannot find the message by error value: '${targetValue}'`)
+        }
+        throw new Error(errMap[targetValue])
+      }
+      return res
+    })
   }
 
   static create(extendConfig?: ReqConfig): ApiHub {
     return new ApiHub(extendConfig)
-  }
-
-  toFormData(data: StringIndex): FormData {
-    const formData = new FormData()
-    for(const key in data) {
-      formData.append(key, data[key])
-    }
-    return formData
   }
 
   getModules(): ModuleRoot {
@@ -92,8 +67,8 @@ export default class ApiHub{
             data = reqData.data
           }
         }
-        const config = {...this.config, ...moduleConfig, ...apiConfig}
-        if(config.type === 'form') {
+        const reqConfig = {...moduleConfig, ...apiConfig}
+        if(reqConfig.type === 'form') {
           data = data && this.toFormData(data)
         }
 
@@ -102,7 +77,7 @@ export default class ApiHub{
           url: path.join(module.base, url),
           params: query,
           data,
-          ...config
+          ...reqConfig
         }
         return this.axiosInstance(axiosConfig)
       }
