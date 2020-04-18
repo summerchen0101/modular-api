@@ -1,11 +1,7 @@
 const path = require('path');
 
-module.exports = {
+const basic = {
   mode: 'development',
-  entry: {
-    main: './src/main.ts',
-    test: './test/index.js'
-  },
   devtool: 'inline-source-map',
   module: {
     rules: [
@@ -19,9 +15,25 @@ module.exports = {
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
   },
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'umd',
+}
+
+module.exports = [
+  {
+    ...basic,
+    entry: './src/main.ts',
+    output: {
+      filename: 'main.js',
+      path: path.resolve(__dirname, 'dist'),
+      libraryTarget: 'umd',
+    },
   },
-};
+  {
+    ...basic,
+    entry: './test/entry.js',
+    output: {
+      filename: 'main.js',
+      path: path.resolve(__dirname, 'test', 'static'),
+      libraryTarget: 'umd',
+    },
+  },
+]
