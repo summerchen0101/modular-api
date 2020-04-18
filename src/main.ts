@@ -72,11 +72,14 @@ export default class ApiHub{
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
       modulehub[key] = (reqData: ApiData, apiConfig: ReqConfig = {}): Promise<ResponseData> => {
-        let url = '', query, data
+
         const api = module.apis[key]
+        let url = api.url,
+            query,
+            data
 
         if(typeof reqData === 'object') {
-          url = api.url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
+          url = url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
             if('params' in reqData) {
               return reqData.params && reqData.params[val]
             }
