@@ -1,5 +1,5 @@
-import { ReqConfig } from './types'
+import { ApiHubConfig } from './types'
 
 export default {
   type: 'json'
-} as ReqConfig
+} as ApiHubConfig

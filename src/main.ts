@@ -1,33 +1,37 @@
-import { AxiosRequestConfig } from 'axios'
-import { ReqConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap } from './types';
+import axios, { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap } from './types';
 import path from 'path'
-import Request from './request';
 import ErrorHandler from './error';
+import Request from './request';
+import defaultApiHubConfig from './default'
 
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
   private errHandler?: ErrorHandler
 
-  private constructor(reqConfig?: ReqConfig) {
-    super(reqConfig)
+  private constructor(
+    axiosInstance: AxiosInstance,
+    private apiHubConfig: ApiHubConfig = defaultApiHubConfig)
+  {
+    super(axiosInstance)
   }
 
-  static create(extendConfig?: ReqConfig): ApiHub {
-    return new ApiHub(extendConfig)
+  static bind(axios: AxiosInstance, apiHubConfig?: ApiHubConfig): ApiHub {
+    return new ApiHub(axios, apiHubConfig)
   }
 
   getModules(): ModuleRoot {
     return this.moduleRoot
   }
 
-  registerModule(moduleName: string, module: Module, moduleConfig: ReqConfig = {}): void {
-    this.moduleRoot[moduleName] = this.createModule(module, moduleConfig)
+  registerModule(moduleName: string, module: Module, apiModuleConfig: ApiHubConfig = {}): void {
+    this.moduleRoot[moduleName] = this.createModule(module, apiModuleConfig)
   }
 
-  createModule(module: Module, moduleConfig: ReqConfig = {}): ModuleHub {
+  createModule(module: Module, apiModuleConfig: ApiHubConfig = {}): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
-      modulehub[key] = (reqData: ApiData, apiConfig: ReqConfig = {}): Promise<ResponseData> => {
+      modulehub[key] = (reqData: ApiData, apiConfig: ApiHubConfig = {}): Promise<ResponseData> => {
 
         const api = module.apis[key]
         let url = api.url,
@@ -48,7 +52,7 @@ export default class ApiHub extends Request{
             data = reqData.data
           }
         }
-        const reqConfig = {...moduleConfig, ...apiConfig}
+        const reqConfig = {...this.apiHubConfig, ...apiModuleConfig, ...apiConfig}
         if(reqConfig.type === 'form') {
           data = data && this.toFormData(data)
         }
@@ -57,8 +61,7 @@ export default class ApiHub extends Request{
           method: api.method,
           url: path.join(module.base, url),
           params: query,
-          data,
-          ...reqConfig
+          data
         }
         return this.axiosInstance(axiosConfig)
       }
@@ -69,6 +72,14 @@ export default class ApiHub extends Request{
   registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
     this.errHandler = ErrorHandler.create(errMap, config)
     this.onResponse(this.errHandler.handleErrResponse.bind(this.errHandler))
+  }
+
+  toFormData(data: StringIndex): FormData {
+    const formData = new FormData()
+    for(const key in data) {
+      formData.append(key, data[key])
+    }
+    return formData
   }
 
 }

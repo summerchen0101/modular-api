@@ -12,8 +12,7 @@ export interface ModuleRoot {
   [moduleName: string]: ModuleHub;
 }
 
-export interface ReqConfig extends AxiosRequestConfig {
-  baseURL?: string;
+export interface ApiHubConfig {
   type?: 'json' | 'form';
 }
 
@@ -34,7 +33,7 @@ export interface Module {
 }
 
 export interface ModuleHub {
-  [key: string]: (data: ApiData, config?: ReqConfig) => Promise<ResponseData>;
+  [key: string]: (data: ApiData, config?: ApiHubConfig) => Promise<ResponseData>;
 }
 
 export interface StringIndex {

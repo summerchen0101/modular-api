@@ -1,24 +1,9 @@
-import axios, {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
-import { ReqConfig, StringIndex} from './types'
-
-import defaultConfig from './default'
+import {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
 
 export default class Request{
-  protected reqConfig: ReqConfig = defaultConfig
-  protected axiosInstance: AxiosInstance
+  protected reqConfig: AxiosRequestConfig = {}
 
-  get axiosConfig(): AxiosRequestConfig {
-    const config: AxiosRequestConfig = {
-      baseURL: this.reqConfig.baseURL,
-    }
-    return config
-  }
-
-  constructor(config?: ReqConfig) {
-    if(config) {
-      this.reqConfig = {...this.reqConfig, ...config}
-    }
-    this.axiosInstance = axios.create(this.axiosConfig)
+  constructor(protected axiosInstance: AxiosInstance) {
   }
 
   onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
@@ -42,17 +27,6 @@ export default class Request{
     this.onResponseError(fn)
   }
 
-  setConfig(config: ReqConfig): void {
-    this.reqConfig = {...this.reqConfig, ...config}
-  }
-
-  toFormData(data: StringIndex): FormData {
-    const formData = new FormData()
-    for(const key in data) {
-      formData.append(key, data[key])
-    }
-    return formData
-  }
 
 }
 
