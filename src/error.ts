@@ -1,4 +1,4 @@
-import { ErrorHandlerConfig, ErrorMap } from './types';
+import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
 import { AxiosResponse } from 'axios'
 
 export const defaultErrConfig: ErrorHandlerConfig = {
@@ -17,15 +17,23 @@ export default class ErrorHandler{
 
   }
 
+  get defaultErrMap(): ErrorMap {
+    return this.errMap
+  }
+
   static create(errMap?: ErrorMap, config?: ErrorHandlerConfig): ErrorHandler{
     return new ErrorHandler(errMap, config)
   }
 
   handleErrResponse(res: AxiosResponse): AxiosResponse {
+    const resConfig = res.config as ExtendsAxiosRequestConfig
     if(!this.errConfig) return res
     const targetKey = this.errConfig.targetKey as string
     const validCode = this.errConfig.validCode
-    const resCode = res.data[targetKey]
+    let resCode = res.data[targetKey]
+    if(Array.isArray(resCode)) {
+      resCode = resCode[0]
+    }
     let defaultMsg = this.errConfig.defaultMsg as string
     defaultMsg = defaultMsg.replace(/\{code\}/gim, resCode)
     let isValid
@@ -42,10 +50,11 @@ export default class ErrorHandler{
       }
 
       if(!isValid) {
-        if(!this.errMap[resCode]) {
+        const errMap: ErrorMap = {...this.errMap, ...resConfig.errMap}
+        if(!errMap[resCode]) {
           throw new Error(defaultMsg)
         }
-        throw new Error(this.errMap[resCode])
+        throw new Error(errMap[resCode])
       }
 
 

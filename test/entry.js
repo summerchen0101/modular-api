@@ -1,6 +1,7 @@
 import axios from 'axios'
 import ApiHub from '../dist/main.js'
 import SiteApis from './static/api/site.json'
+import errCodes from './static/errCodes.json'
 
 const options = {
   baseURL: '/api',
@@ -14,14 +15,7 @@ const errHandlerConfig = {
   defaultMsg: '有個小錯誤, 錯誤代碼:{code}'
 }
 
-const errMap = {
-  '10001': '人為錯誤',
-  '10002': '輸入錯誤',
-}
-
-
-
-ApiHubInstance.registerErrHandler(errMap, errHandlerConfig)
+ApiHubInstance.registerErrHandler(errCodes, errHandlerConfig)
 
 // ApiHubInstance.onRequest(config => {
 //   console.log(config)

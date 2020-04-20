@@ -5,6 +5,7 @@ export default class ErrorHandler {
     private errMap;
     private errConfig;
     private constructor();
+    get defaultErrMap(): ErrorMap;
     static create(errMap?: ErrorMap, config?: ErrorHandlerConfig): ErrorHandler;
     handleErrResponse(res: AxiosResponse): AxiosResponse;
 }

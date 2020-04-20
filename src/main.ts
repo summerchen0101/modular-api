@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios'
-import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap } from './types';
+import { AxiosInstance } from 'axios'
+import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
 import path from 'path'
 import ErrorHandler from './error';
 import Request from './request';
@@ -56,13 +56,21 @@ export default class ApiHub extends Request{
         if(reqConfig.type === 'form') {
           data = data && this.toFormData(data)
         }
-
-        const axiosConfig: AxiosRequestConfig = {
+        const axiosConfig: ExtendsAxiosRequestConfig = {
           method: api.method,
           url: path.join(module.base, url),
           params: query,
-          data
+          data,
+          errMap: Object.assign({}, module.errMap, api.errMap)
         }
+
+        // if(this.errHandler) {
+        //   this.errHandler.registerApiErrMap({
+        //     method: axiosConfig.method as MethodType,
+        //     url: axiosConfig.url as string,
+        //     errMap: Object.assign({}, module.errMap, api.errMap),
+        //   })
+        // }
         return this.axiosInstance(axiosConfig)
       }
     }
@@ -71,7 +79,8 @@ export default class ApiHub extends Request{
   }
   registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
     this.errHandler = ErrorHandler.create(errMap, config)
-    this.onResponse(this.errHandler.handleErrResponse.bind(this.errHandler))
+    this.onResponse(config =>
+      (this.errHandler as ErrorHandler).handleErrResponse.call(this.errHandler, config))
   }
 
   toFormData(data: StringIndex): FormData {

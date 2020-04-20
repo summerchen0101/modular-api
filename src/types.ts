@@ -1,8 +1,14 @@
 import { AxiosRequestConfig } from 'axios'
 
+export interface ExtendsAxiosRequestConfig extends AxiosRequestConfig {
+  errMap?: {
+    [key: string]: string;
+  };
+}
+
 export type ErrorMap = StringIndex
 
-export interface ErrorHandlerConfig{
+export interface ErrorHandlerConfig {
   targetKey?: string;
   validCode?: (number | string) | (number | string)[];
   defaultMsg?: string;
@@ -24,11 +30,17 @@ export interface ApiData {
 export interface ApiLibItem {
   method: MethodType;
   url: string;
+  errMap?: {
+    [key: string]: string;
+  };
 }
 export interface Module {
   base: string;
   apis: {
     [key: string]: ApiLibItem;
+  };
+  errMap?: {
+    [key: string]: string;
   };
 }
 
