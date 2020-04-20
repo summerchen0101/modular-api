@@ -1,8 +1,5 @@
-// import Api from '../../dist/main.js'
-const Api = require('../dist/main.js').default
-const SiteApis = require('./static/api/site.json')
-
-console.log(Api)
+import Api from '../dist/main.js'
+import SiteApis from './static/api/site.json'
 
 const options = {
   baseURL: '/api',
@@ -11,6 +8,7 @@ const options = {
 const errHandlerConfig = {
   // targetKey: 'code',
   validCode: ['0'],
+  defaultMsg: '有個小錯誤, 錯誤代碼:{code}'
 }
 
 const errMap = {
@@ -19,19 +17,15 @@ const errMap = {
 }
 
 
-
 const ApiInstance = Api.create(options)
 
-ApiInstance.registerErrorHandler(errMap, errHandlerConfig)
+ApiInstance.registerErrHandler(errMap, errHandlerConfig)
 
 // ApiInstance.onRequest(config => {
 //   console.log(config)
 // })
-ApiInstance.onResponse(res => {
-  console.log(res)
-})
 ApiInstance.onResponseError(err => {
-  alert(err)
+  console.log(err)
 })
 
 const SiteModule = ApiInstance.createModule(SiteApis)

@@ -4,7 +4,8 @@ export type ErrorMap = StringIndex
 
 export interface ErrorHandlerConfig{
   targetKey?: string;
-  validCode?: Array<number | string>;
+  validCode?: (number | string) | (number | string)[];
+  defaultMsg?: string;
 }
 
 export interface ModuleRoot {

@@ -20,9 +20,12 @@ const basic = {
 module.exports = [
   {
     ...basic,
-    entry: './src/main.ts',
+    entry: {
+      main: './src/main.ts',
+      errHandle: './src/error.ts'
+    },
     output: {
-      filename: 'main.js',
+      filename: '[name].js',
       path: path.resolve(__dirname, 'dist'),
       libraryTarget: 'umd',
     },

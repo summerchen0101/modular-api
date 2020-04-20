@@ -6,29 +6,10 @@ import ErrorHandler from './error';
 
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
-  private errHandler: ErrorHandler | null = null
+  private errHandler?: ErrorHandler
 
   private constructor(reqConfig?: ReqConfig) {
     super(reqConfig)
-  }
-
-  registerErrorHandler(errMap: ErrorMap, errHandlerConfig: ErrorHandlerConfig): void {
-    this.errHandler = ErrorHandler.create(errHandlerConfig)
-    const targetKey = this.errHandler.errTargetKey
-    this.onResponse(res => {
-      const targetValue = res.data[targetKey]
-      if(targetValue === undefined) {
-        throw new Error(`Cannot find the 'targetKey': ${targetKey}`)
-      }
-      const result = this.errHandler && this.errHandler.validateCode(targetValue)
-      if(!result) {
-        if(!errMap[targetValue]) {
-          throw new Error(`Cannot find the message by error value: '${targetValue}'`)
-        }
-        throw new Error(errMap[targetValue])
-      }
-      return res
-    })
   }
 
   static create(extendConfig?: ReqConfig): ApiHub {
@@ -84,6 +65,10 @@ export default class ApiHub extends Request{
     }
     return modulehub
 
+  }
+  registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
+    this.errHandler = ErrorHandler.create(errMap, config)
+    this.onResponse(this.errHandler.handleErrResponse.bind(this.errHandler))
   }
 
 }
