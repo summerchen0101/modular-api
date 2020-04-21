@@ -8,6 +8,10 @@ export interface ExtendsAxiosRequestConfig extends AxiosRequestConfig {
 
 export type ErrorMap = StringIndex
 
+export interface ResponseStatusHandler {
+  (status: number, isValid: boolean): boolean;
+}
+
 export interface ErrorHandlerConfig {
   targetKey?: string;
   validCode?: (number | string) | (number | string)[];

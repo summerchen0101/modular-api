@@ -7,7 +7,7 @@ const options = {
   baseURL: '/api',
 }
 const axiosInstance = axios.create(options)
-const ApiHubInstance = ApiHub.bind(axiosInstance)
+const apiHubInstance = ApiHub.bind(axiosInstance)
 
 const errHandlerConfig = {
   // targetKey: 'code',
@@ -15,14 +15,14 @@ const errHandlerConfig = {
   defaultMsg: '有個小錯誤, 錯誤代碼:{code}'
 }
 
-ApiHubInstance.registerErrHandler(errCodes, errHandlerConfig)
+apiHubInstance.registerErrHandler(errCodes, errHandlerConfig)
 
-// ApiHubInstance.onRequest(config => {
+// apiHubInstance.onRequest(config => {
 //   console.log(config)
 // })
-ApiHubInstance.onResponseError(err => {
+apiHubInstance.onResponseError(err => {
   console.log(err)
 })
 
-const SiteModule = ApiHubInstance.createModule(SiteApis)
+const SiteModule = apiHubInstance.createModule(SiteApis)
 SiteModule.getSiteInfo()

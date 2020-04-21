@@ -1,4 +1,4 @@
-import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
+import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, ResponseStatusHandler } from './types';
 import { AxiosResponse } from 'axios'
 
 export const defaultErrConfig: ErrorHandlerConfig = {
@@ -25,6 +25,14 @@ export default class ErrorHandler{
     return new ErrorHandler(errMap, config)
   }
 
+  handleResponseStatus: ResponseStatusHandler = (status, isValid) => {
+    if(!isValid) {
+      // console.warn(`statusCode: ${status}`)
+      throw new Error(`statusCode: ${status}`)
+    }
+    return isValid
+  }
+
   handleErrResponse(res: AxiosResponse): AxiosResponse {
     const resConfig = res.config as ExtendsAxiosRequestConfig
     if(!this.errConfig) return res
@@ -37,28 +45,28 @@ export default class ErrorHandler{
     let defaultMsg = this.errConfig.defaultMsg as string
     defaultMsg = defaultMsg.replace(/\{code\}/gim, resCode)
     let isValid
-      if(resCode === undefined) {
-        throw new Error(`Cannot find the 'targetKey': ${targetKey}`)
+    if(resCode === undefined) {
+      throw new Error(`Cannot find the targetKey: '${targetKey}'`)
+    }
+
+    if(Array.isArray(validCode)) {
+      isValid = validCode.includes(resCode)
+    }
+
+    if(typeof validCode === 'string' || typeof validCode === 'number' ) {
+      isValid = validCode === resCode
+    }
+
+    if(!isValid) {
+      const errMap: ErrorMap = {...this.errMap, ...resConfig.errMap}
+      if(!errMap[resCode]) {
+        throw new Error(defaultMsg)
       }
-
-      if(Array.isArray(validCode)) {
-        isValid = validCode.includes(resCode)
-      }
-
-      if(typeof validCode === 'string' || typeof validCode === 'number' ) {
-        isValid = validCode === resCode
-      }
-
-      if(!isValid) {
-        const errMap: ErrorMap = {...this.errMap, ...resConfig.errMap}
-        if(!errMap[resCode]) {
-          throw new Error(defaultMsg)
-        }
-        throw new Error(errMap[resCode])
-      }
+      throw new Error(errMap[resCode])
+    }
 
 
-      return res
+    return res
   }
 
 }

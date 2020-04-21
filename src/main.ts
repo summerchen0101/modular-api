@@ -61,16 +61,11 @@ export default class ApiHub extends Request{
           url: path.join(module.base, url),
           params: query,
           data,
-          errMap: Object.assign({}, module.errMap, api.errMap)
+          validateStatus: status => this.validateStatus(status, this.errHandler?.handleResponseStatus),
+          errMap: Object.assign({}, module.errMap, api.errMap),
+          ...reqConfig
         }
 
-        // if(this.errHandler) {
-        //   this.errHandler.registerApiErrMap({
-        //     method: axiosConfig.method as MethodType,
-        //     url: axiosConfig.url as string,
-        //     errMap: Object.assign({}, module.errMap, api.errMap),
-        //   })
-        // }
         return this.axiosInstance(axiosConfig)
       }
     }

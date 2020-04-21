@@ -1,8 +1,10 @@
 import { AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import { ResponseStatusHandler } from './types';
 export default class Request {
     protected axiosInstance: AxiosInstance;
     protected reqConfig: AxiosRequestConfig;
     constructor(axiosInstance: AxiosInstance);
+    validateStatus(status: number, fn?: ResponseStatusHandler): boolean;
     onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig): void;
     onResponse(fn: (response: AxiosResponse) => AxiosResponse): void;
     onRequestError(fn: (config: AxiosError) => AxiosError): void;
