@@ -1,19 +1,23 @@
 import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, ResponseStatusHandler } from './types';
-import { AxiosResponse } from 'axios'
+import { AxiosResponse, AxiosInstance } from 'axios'
+import Request from './request';
 
 export const defaultErrConfig: ErrorHandlerConfig = {
   targetKey: "code",
   validCode: [0],
   defaultMsg: '({code}) Something goes wrong...'
 }
-export default class ErrorHandler{
+export default class ErrorHandler extends Request{
   private constructor(
+    public axiosInstance: AxiosInstance,
     private errMap: ErrorMap = {},
     private errConfig: ErrorHandlerConfig = defaultErrConfig
   ) {
+    super(axiosInstance)
     if(this.errConfig) {
       this.errConfig = {...defaultErrConfig, ...this.errConfig}
     }
+    this.onResponse(res => this.handleErrResponse(res))
 
   }
 
@@ -21,8 +25,12 @@ export default class ErrorHandler{
     return this.errMap
   }
 
-  static create(errMap?: ErrorMap, config?: ErrorHandlerConfig): ErrorHandler{
-    return new ErrorHandler(errMap, config)
+  static create(
+    axiosInstance: AxiosInstance,
+    errMap?: ErrorMap,
+    config?: ErrorHandlerConfig
+  ): ErrorHandler {
+    return new ErrorHandler(axiosInstance, errMap, config)
   }
 
   handleErrResponse(res: AxiosResponse): AxiosResponse {

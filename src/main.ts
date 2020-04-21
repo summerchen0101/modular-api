@@ -86,9 +86,7 @@ export default class ApiHub extends Request{
   }
 
   registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
-    this.errHandler = ErrorHandler.create(errMap, config)
-    this.onResponse(config =>
-      (this.errHandler as ErrorHandler).handleErrResponse.call(this.errHandler, config))
+    this.errHandler = ErrorHandler.create(this.axiosInstance, errMap, config)
   }
 
   toFormData(data: StringIndex): FormData {
