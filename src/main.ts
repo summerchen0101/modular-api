@@ -8,6 +8,7 @@ import defaultApiHubConfig from './default'
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
   private errHandler?: ErrorHandler
+  private errStatusMap?: ErrorMap
 
   private constructor(
     axiosInstance: AxiosInstance,
@@ -61,7 +62,7 @@ export default class ApiHub extends Request{
           url: path.join(module.base, url),
           params: query,
           data,
-          validateStatus: status => this.validateStatus(status, this.errHandler?.handleResponseStatus),
+          validateStatus: status => this.handleValidateStatus(status),
           errMap: Object.assign({}, module.errMap, api.errMap),
           ...reqConfig
         }
@@ -72,6 +73,18 @@ export default class ApiHub extends Request{
     return modulehub
 
   }
+
+  handleValidateStatus(status: number): boolean {
+    if(this.errStatusMap?.[status]) {
+      throw new Error(this.errStatusMap[status].replace(/\{code\}/gim, status))
+    }
+    return status >= 200 && status < 300
+  }
+
+  setErrStatus(errStatusMap: ErrorMap): void {
+    this.errStatusMap = errStatusMap
+  }
+
   registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
     this.errHandler = ErrorHandler.create(errMap, config)
     this.onResponse(config =>

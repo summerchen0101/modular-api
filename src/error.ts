@@ -25,14 +25,6 @@ export default class ErrorHandler{
     return new ErrorHandler(errMap, config)
   }
 
-  handleResponseStatus: ResponseStatusHandler = (status, isValid) => {
-    if(!isValid) {
-      // console.warn(`statusCode: ${status}`)
-      throw new Error(`statusCode: ${status}`)
-    }
-    return isValid
-  }
-
   handleErrResponse(res: AxiosResponse): AxiosResponse {
     const resConfig = res.config as ExtendsAxiosRequestConfig
     if(!this.errConfig) return res

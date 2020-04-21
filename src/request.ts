@@ -7,15 +7,6 @@ export default class Request{
   constructor(protected axiosInstance: AxiosInstance) {
   }
 
-
-  validateStatus(status: number, fn?: ResponseStatusHandler): boolean {
-    const isValid = status >= 200 && status < 300
-    if(fn) {
-      return fn(status, isValid)
-    }
-    return isValid
-  }
-
   onRequest(fn: (config: AxiosRequestConfig) => AxiosRequestConfig): void {
     this.axiosInstance.interceptors.request.use(config => fn(config) || config)
   }

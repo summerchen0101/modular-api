@@ -2,6 +2,7 @@ import axios from 'axios'
 import ApiHub from '../dist/main.js'
 import SiteApis from './static/api/site.json'
 import errCodes from './static/errCodes.json'
+import resStatus from './static/resStatus.json'
 
 const options = {
   baseURL: '/api',
@@ -16,6 +17,7 @@ const errHandlerConfig = {
 }
 
 apiHubInstance.registerErrHandler(errCodes, errHandlerConfig)
+apiHubInstance.setErrStatus(resStatus)
 
 // apiHubInstance.onRequest(config => {
 //   console.log(config)
