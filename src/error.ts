@@ -36,7 +36,7 @@ export default class ErrorHandler extends Request{
     // 處理回傳狀態
     const statusTarget = this.errConfig.statusMap?.[res.status]
     if(this.errConfig.statusMap?.[res.status]) {
-      throw new Error(statusTarget.replace(/\{code\}/gim, res.status))
+      throw statusTarget.replace(/\{code\}/gim, res.status)
     }
     // 處理回傳的錯誤代碼
     const targetKey = this.errConfig.targetKey as string
@@ -63,9 +63,9 @@ export default class ErrorHandler extends Request{
     if(!isValid) {
       const errMap: ErrorMap = {...this.errConfig.errMap, ...resConfig.errMap}
       if(!errMap[resCode]) {
-        throw new Error(defaultMsg)
+        throw defaultMsg
       }
-      throw new Error(errMap[resCode])
+      throw errMap[resCode]
     }
 
 
