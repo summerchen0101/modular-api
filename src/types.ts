@@ -21,6 +21,10 @@ export interface ErrorHandlerConfig {
   statusMap?: StatusMap;
 }
 
+export interface MultiModuleConfig {
+  [moduleName: string]: Module;
+}
+
 export interface ModuleRoot {
   [moduleName: string]: ModuleHub;
 }

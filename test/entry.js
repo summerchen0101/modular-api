@@ -27,5 +27,8 @@ apiHubInstance.onResponseError(err => {
   console.log(err)
 })
 
-const SiteModule = apiHubInstance.createModule(SiteApis)
-SiteModule.getSiteInfo()
+apiHubInstance.registerMultiModule({
+  site: SiteApis
+})
+const apiHub = apiHubInstance.getModules()
+apiHub.site.getSiteInfo()

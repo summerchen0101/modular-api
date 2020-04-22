@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
 import path from 'path'
 import ErrorHandler from './error';
 import Request from './request';
@@ -24,7 +24,13 @@ export default class ApiHub extends Request{
     return this.moduleRoot
   }
 
-  registerModule(moduleName: string, module: Module, apiModuleConfig: ApiHubConfig = {}): void {
+  registerMultiModule(modules: MultiModuleConfig, apiModuleConfig?: ApiHubConfig): void {
+    Object.keys(modules).forEach(moduleName => {
+      this.moduleRoot[moduleName] = this.createModule(modules[moduleName], apiModuleConfig)
+    })
+  }
+
+  registerModule(moduleName: string, module: Module, apiModuleConfig?: ApiHubConfig): void {
     this.moduleRoot[moduleName] = this.createModule(module, apiModuleConfig)
   }
 
