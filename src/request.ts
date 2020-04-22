@@ -1,5 +1,4 @@
 import {AxiosResponse, AxiosInstance, AxiosRequestConfig, AxiosError} from 'axios'
-import { ResponseStatusHandler } from './types'
 
 export default class Request{
   protected reqConfig: AxiosRequestConfig = {}

@@ -1,5 +1,5 @@
 import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, ResponseStatusHandler } from './types';
-import { AxiosResponse, AxiosInstance } from 'axios'
+import { AxiosResponse, AxiosInstance} from 'axios'
 import Request from './request';
 
 export const defaultErrConfig: ErrorHandlerConfig = {
@@ -10,32 +10,35 @@ export const defaultErrConfig: ErrorHandlerConfig = {
 export default class ErrorHandler extends Request{
   private constructor(
     public axiosInstance: AxiosInstance,
-    private errMap: ErrorMap = {},
-    private errConfig: ErrorHandlerConfig = defaultErrConfig
+    public errConfig: ErrorHandlerConfig = defaultErrConfig
   ) {
     super(axiosInstance)
     if(this.errConfig) {
       this.errConfig = {...defaultErrConfig, ...this.errConfig}
     }
     this.onResponse(res => this.handleErrResponse(res))
-
-  }
-
-  get defaultErrMap(): ErrorMap {
-    return this.errMap
   }
 
   static create(
     axiosInstance: AxiosInstance,
-    errMap?: ErrorMap,
     config?: ErrorHandlerConfig
   ): ErrorHandler {
-    return new ErrorHandler(axiosInstance, errMap, config)
+    return new ErrorHandler(axiosInstance, config)
+  }
+
+  handleValidateStatus(status: number): boolean {
+    return true
   }
 
   handleErrResponse(res: AxiosResponse): AxiosResponse {
     const resConfig = res.config as ExtendsAxiosRequestConfig
     if(!this.errConfig) return res
+    // 處理回傳狀態
+    const statusTarget = this.errConfig.statusMap?.[res.status]
+    if(this.errConfig.statusMap?.[res.status]) {
+      throw new Error(statusTarget.replace(/\{code\}/gim, res.status))
+    }
+    // 處理回傳的錯誤代碼
     const targetKey = this.errConfig.targetKey as string
     const validCode = this.errConfig.validCode
     let resCode = res.data[targetKey]
@@ -58,7 +61,7 @@ export default class ErrorHandler extends Request{
     }
 
     if(!isValid) {
-      const errMap: ErrorMap = {...this.errMap, ...resConfig.errMap}
+      const errMap: ErrorMap = {...this.errConfig.errMap, ...resConfig.errMap}
       if(!errMap[resCode]) {
         throw new Error(defaultMsg)
       }

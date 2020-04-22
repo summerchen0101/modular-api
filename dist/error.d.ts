@@ -1,13 +1,12 @@
-import { ErrorHandlerConfig, ErrorMap } from './types';
+import { ErrorHandlerConfig } from './types';
 import { AxiosResponse, AxiosInstance } from 'axios';
 import Request from './request';
 export declare const defaultErrConfig: ErrorHandlerConfig;
 export default class ErrorHandler extends Request {
     axiosInstance: AxiosInstance;
-    private errMap;
-    private errConfig;
+    errConfig: ErrorHandlerConfig;
     private constructor();
-    get defaultErrMap(): ErrorMap;
-    static create(axiosInstance: AxiosInstance, errMap?: ErrorMap, config?: ErrorHandlerConfig): ErrorHandler;
+    static create(axiosInstance: AxiosInstance, config?: ErrorHandlerConfig): ErrorHandler;
+    handleValidateStatus(status: number): boolean;
     handleErrResponse(res: AxiosResponse): AxiosResponse;
 }

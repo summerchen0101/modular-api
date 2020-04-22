@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
 import path from 'path'
 import ErrorHandler from './error';
 import Request from './request';
@@ -7,8 +7,7 @@ import defaultApiHubConfig from './default'
 
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
-  private errHandler?: ErrorHandler
-  private errStatusMap?: ErrorMap
+  private errHandlerInstance?: ErrorHandler
 
   private constructor(
     axiosInstance: AxiosInstance,
@@ -62,9 +61,14 @@ export default class ApiHub extends Request{
           url: path.join(module.base, url),
           params: query,
           data,
-          validateStatus: status => this.handleValidateStatus(status),
           errMap: Object.assign({}, module.errMap, api.errMap),
           ...reqConfig
+        }
+
+        // 有設定statusMap才綁定handleValidateStatus
+        if(this.errHandlerInstance?.errConfig.statusMap) {
+          axiosConfig.validateStatus =
+            this.errHandlerInstance.handleValidateStatus.bind(this.errHandlerInstance)
         }
 
         return this.axiosInstance(axiosConfig)
@@ -74,19 +78,8 @@ export default class ApiHub extends Request{
 
   }
 
-  handleValidateStatus(status: number): boolean {
-    if(this.errStatusMap?.[status]) {
-      throw new Error(this.errStatusMap[status].replace(/\{code\}/gim, status))
-    }
-    return status >= 200 && status < 300
-  }
-
-  setErrStatus(errStatusMap: ErrorMap): void {
-    this.errStatusMap = errStatusMap
-  }
-
-  registerErrHandler(errMap?: ErrorMap, config?: ErrorHandlerConfig): void {
-    this.errHandler = ErrorHandler.create(this.axiosInstance, errMap, config)
+  registerErrHandler(config?: ErrorHandlerConfig): void {
+    this.errHandlerInstance = ErrorHandler.create(this.axiosInstance, config)
   }
 
   toFormData(data: StringIndex): FormData {

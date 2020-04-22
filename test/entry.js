@@ -12,12 +12,13 @@ const apiHubInstance = ApiHub.bind(axiosInstance)
 
 const errHandlerConfig = {
   // targetKey: 'code',
-  // validCode: ['0'],
-  defaultMsg: '有個小錯誤, 錯誤代碼:{code}'
+  validCode: ['0'],
+  defaultMsg: '有個小錯誤, 錯誤代碼:{code}',
+  errMap: errCodes,
+  statusMap: resStatus
 }
 
-apiHubInstance.registerErrHandler(errCodes, errHandlerConfig)
-apiHubInstance.setErrStatus(resStatus)
+apiHubInstance.registerErrHandler(errHandlerConfig)
 
 // apiHubInstance.onRequest(config => {
 //   console.log(config)
