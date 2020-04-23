@@ -1,17 +1,25 @@
 {
-  "base": "users",
+  "base": "",
   "apis": {
-    "getList": {
+    "getUser": {
       "method": "get",
-      "url": ""
+      "url": "user/{id}"
     },
-    "getItem": {
-      "method": "get",
-      "url": "{id}"
-    },
-    "addItem": {
+    "register": {
       "method": "post",
-      "url": ""
+      "url": "client/register/"
+    },
+    "getProfile": {
+      "method": "get",
+      "url": "client/profile"
+    },
+    "updateProfile": {
+      "method": "put",
+      "url": "client/profile"
+    },
+    "updatePw": {
+      "method": "put",
+      "url": "client/profile/password"
     }
   }
 }

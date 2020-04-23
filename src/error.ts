@@ -1,4 +1,4 @@
-import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, ResponseStatusHandler } from './types';
+import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
 import { AxiosResponse, AxiosInstance} from 'axios'
 import Request from './request';
 
@@ -39,24 +39,25 @@ export default class ErrorHandler extends Request{
       throw statusTarget.replace(/\{code\}/gim, res.status)
     }
     // 處理回傳的錯誤代碼
-    const targetKey = this.errConfig.targetKey as string
+    const targetKey = this.errConfig.targetKey
     const validCode = this.errConfig.validCode
-    let resCode = res.data[targetKey]
+    let resCode = targetKey?.split('.').reduce((val, next) => {
+      return val[next]
+    }, res.data)
     if(Array.isArray(resCode)) {
       resCode = resCode[0]
     }
     let defaultMsg = this.errConfig.defaultMsg as string
     defaultMsg = defaultMsg.replace(/\{code\}/gim, resCode)
     let isValid
+
     if(resCode === undefined) {
-      throw new Error(`Cannot find the targetKey: '${targetKey}'`)
+      throw new Error(`The targetKey '${targetKey}' is not exist.`)
     }
 
     if(Array.isArray(validCode)) {
       isValid = validCode.includes(resCode)
-    }
-
-    if(typeof validCode === 'string' || typeof validCode === 'number' ) {
+    }else if(typeof validCode === 'string' || typeof validCode === 'number' ) {
       isValid = validCode === resCode
     }
 

@@ -1,6 +1,5 @@
 import axios from 'axios'
 import ApiHub from '../dist/main.js'
-import SiteApis from './static/api/site.json'
 import errCodes from './static/errCodes.json'
 import resStatus from './static/resStatus.json'
 
@@ -28,7 +27,11 @@ apiHubInstance.onResponseError(err => {
 })
 
 apiHubInstance.registerMultiModule({
-  site: SiteApis
+  site: require('./static/api/site.json'),
+  user: require('./static/api/user.json'),
 })
 const apiHub = apiHubInstance.getModules()
-apiHub.site.getSiteInfo()
+apiHub.site.getSiteInfo({foo: 'bar'}, {params: {fooooo: 'barrrr'}})
+apiHub.user.updateProfile({foo: 'bar'})
+apiHub.user.getUser({id: 123, name: 'ruby'})
+apiHub.user.register({id: 123, name: 'ruby'}, {params: {foo: 'bar'}})

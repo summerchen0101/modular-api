@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ApiData, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
 import path from 'path'
 import ErrorHandler from './error';
 import Request from './request';
@@ -37,34 +37,29 @@ export default class ApiHub extends Request{
   createModule(module: Module, apiModuleConfig: ApiHubConfig = {}): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
-      modulehub[key] = (reqData: ApiData, apiConfig: ApiHubConfig = {}): Promise<ResponseData> => {
-
+      modulehub[key] = (...args): Promise<ResponseData> => {
         const api = module.apis[key]
-        let url = api.url,
-            query,
-            data
-
-        if(typeof reqData === 'object') {
-          url = url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
-            if('params' in reqData) {
-              return reqData.params && reqData.params[val]
-            }
-            throw new Error(`The params '${val}' do not have a assign value.`)
-          })
-          if(reqData.query) {
-            query = reqData.query
-          }
-          if(reqData.data) {
-            data = reqData.data
-          }
+        let data
+        let query
+        let inserts
+        let config
+        if(api.method === 'post' || api.method === 'put') {
+          inserts = data = args?.[0]
+          config = args?.[1]
+        }else {
+          inserts = query = args?.[0]
+          config = args?.[1]
         }
-        const reqConfig = {...this.apiHubConfig, ...apiModuleConfig, ...apiConfig}
+
+        const url = path.join(module.base, this.transferUrlTemplate(api.url, inserts))
+
+        const reqConfig = {...this.apiHubConfig, ...apiModuleConfig, ...config}
         if(reqConfig.type === 'form') {
           data = data && this.toFormData(data)
         }
         const axiosConfig: ExtendsAxiosRequestConfig = {
           method: api.method,
-          url: path.join(module.base, url),
+          url,
           params: query,
           data,
           errMap: Object.assign({}, module.errMap, api.errMap),
@@ -94,6 +89,12 @@ export default class ApiHub extends Request{
       formData.append(key, data[key])
     }
     return formData
+  }
+
+  transferUrlTemplate(url: string, inserts: StringIndex): string {
+    return url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
+      return inserts[val]
+    })
   }
 
 }
