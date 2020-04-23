@@ -13,5 +13,4 @@ export default class ApiHub extends Request {
     createModule(module: Module, apiModuleConfig?: ApiHubConfig): ModuleHub;
     registerErrHandler(config?: ErrorHandlerConfig): void;
     toFormData(data: StringIndex): FormData;
-    transferUrlTemplate(url: string, inserts: StringIndex): string;
 }

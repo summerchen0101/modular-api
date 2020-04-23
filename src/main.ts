@@ -4,6 +4,7 @@ import path from 'path'
 import ErrorHandler from './error';
 import Request from './request';
 import defaultApiHubConfig from './default'
+import { transferStringTemplate } from './utils'
 
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
@@ -51,7 +52,7 @@ export default class ApiHub extends Request{
           config = args?.[1]
         }
 
-        const url = path.join(module.base, this.transferUrlTemplate(api.url, inserts))
+        const url = path.join(module.base, transferStringTemplate(api.url, inserts))
 
         const reqConfig = {...this.apiHubConfig, ...apiModuleConfig, ...config}
         if(reqConfig.type === 'form') {
@@ -89,12 +90,6 @@ export default class ApiHub extends Request{
       formData.append(key, data[key])
     }
     return formData
-  }
-
-  transferUrlTemplate(url: string, inserts: StringIndex): string {
-    return url.replace(/\{\s*([$#@\-\d\w]+)\s*\}/gim, (v, val: string) => {
-      return inserts[val]
-    })
   }
 
 }

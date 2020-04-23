@@ -1,11 +1,12 @@
-import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig } from './types';
+import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, StringIndex } from './types';
 import { AxiosResponse, AxiosInstance} from 'axios'
+import { transferStringTemplate, getValueByObjPath } from './utils';
 import Request from './request';
 
 export const defaultErrConfig: ErrorHandlerConfig = {
   targetKey: "code",
   validCode: [0],
-  defaultMsg: '({code}) Something goes wrong...'
+  defaultMsg: '({code}) Something goes wrong...',
 }
 export default class ErrorHandler extends Request{
   private constructor(
@@ -36,19 +37,17 @@ export default class ErrorHandler extends Request{
     // 處理回傳狀態
     const statusTarget = this.errConfig.statusMap?.[res.status]
     if(this.errConfig.statusMap?.[res.status]) {
-      throw statusTarget.replace(/\{code\}/gim, res.status)
+      throw transferStringTemplate(statusTarget, {code: res.status})
     }
     // 處理回傳的錯誤代碼
     const targetKey = this.errConfig.targetKey
     const validCode = this.errConfig.validCode
-    let resCode = targetKey?.split('.').reduce((val, next) => {
-      return val[next]
-    }, res.data)
+    let resCode = targetKey && getValueByObjPath(targetKey, res.data) as string
     if(Array.isArray(resCode)) {
       resCode = resCode[0]
     }
-    let defaultMsg = this.errConfig.defaultMsg as string
-    defaultMsg = defaultMsg.replace(/\{code\}/gim, resCode)
+    const defaultMsg = this.errConfig.defaultMsg as string
+
     let isValid
 
     if(resCode === undefined) {
@@ -63,10 +62,13 @@ export default class ErrorHandler extends Request{
 
     if(!isValid) {
       const errMap: ErrorMap = {...this.errConfig.errMap, ...resConfig.errMap}
-      if(!errMap[resCode]) {
-        throw defaultMsg
+      let msg = errMap[resCode] || defaultMsg
+      const params: {code: string; msg?: string} = {
+        code: resCode
       }
-      throw errMap[resCode]
+      msg = transferStringTemplate(msg, params)
+
+      throw msg
     }
 
 

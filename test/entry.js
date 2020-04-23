@@ -11,6 +11,10 @@ const apiHubInstance = ApiHub.bind(axiosInstance)
 
 const errHandlerConfig = {
   // targetKey: 'code',
+  params: {
+    'code': 'code',
+    'msg': 'data.msg'
+  },
   validCode: ['0'],
   defaultMsg: '有個小錯誤, 錯誤代碼:{code}',
   errMap: errCodes,
