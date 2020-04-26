@@ -9,12 +9,16 @@ export declare type StatusMap = StringIndex;
 export interface ResponseStatusHandler {
     (status: number, isValid: boolean): boolean;
 }
+export declare type ErrorHandlerTypes = 'code' | 'status' | 'params';
+export declare type SilentValueFunc = (val: string | number) => boolean;
 export interface ErrorHandlerConfig {
-    targetKey?: string;
-    validCode?: (number | string) | (number | string)[];
+    type?: ErrorHandlerTypes;
+    templateKey?: string;
+    path?: string;
+    silentValue?: (string | number) | (string | number)[] | SilentValueFunc;
+    map?: ErrorMap;
     defaultMsg?: string;
-    errMap?: ErrorMap;
-    statusMap?: StatusMap;
+    handleMsg?: (msg: string, val: string | number) => void;
 }
 export interface MultiModuleConfig {
     [moduleName: string]: Module;

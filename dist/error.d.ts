@@ -1,12 +1,15 @@
 import { ErrorHandlerConfig } from './types';
-import { AxiosResponse, AxiosInstance } from 'axios';
-import Request from './request';
-export declare const defaultErrConfig: ErrorHandlerConfig;
-export default class ErrorHandler extends Request {
-    axiosInstance: AxiosInstance;
-    errConfig: ErrorHandlerConfig;
+import { AxiosResponse } from 'axios';
+export declare class ErrorHandler {
+    private response;
+    private config;
+    private targetValue;
+    private isValidValue;
+    private errMsg;
     private constructor();
-    static create(axiosInstance: AxiosInstance, config?: ErrorHandlerConfig): ErrorHandler;
-    handleValidateStatus(status: number): boolean;
-    handleErrResponse(res: AxiosResponse): AxiosResponse;
+    static register(response: AxiosResponse, config: ErrorHandlerConfig): ErrorHandler;
+    getTargetValue(): string | number;
+    handleErrorResponse(): void;
+    getErrMsg(): string;
+    getValueValidation(): boolean;
 }

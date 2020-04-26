@@ -13,14 +13,27 @@ export interface ResponseStatusHandler {
   (status: number, isValid: boolean): boolean;
 }
 
+export type ErrorHandlerTypes = 'code' | 'status' | 'params'
+
+export type SilentValueFunc = (val: string | number) => boolean
+
 export interface ErrorHandlerConfig {
-  targetKey?: string;
-  validCode?: (number | string) | (number | string)[];
+  type?: ErrorHandlerTypes;
+  templateKey?: string;
+  path?: string;
+  silentValue?: (string | number) | (string | number)[] | SilentValueFunc;
+  map?: ErrorMap;
   defaultMsg?: string;
-  errMap?: ErrorMap;
-  statusMap?: StatusMap;
-  params?: StringIndex;
+  handleMsg?: (msg: string, val: string | number) => void;
 }
+// export interface ErrorHandlerConfig {
+//   targetKey?: string;
+//   validCode?: (number | string) | (number | string)[];
+//   defaultMsg?: string;
+//   errMap?: ErrorMap;
+//   statusMap?: StatusMap;
+//   params?: StringIndex;
+// }
 
 export interface MultiModuleConfig {
   [moduleName: string]: Module;

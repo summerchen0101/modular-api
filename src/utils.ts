@@ -6,9 +6,9 @@ export function transferStringTemplate(templateString: string, inserts: StringIn
   })
 }
 
-export function getValueByObjPath(objectPath: string, data: StringIndex): unknown {
+export function getValueByObjPath(objectPath: string, data: StringIndex): any {
   return objectPath?.split('.').reduce((val, next) => {
-    return val[next]
+    return val[next] || ""
   }, data)
 }
 

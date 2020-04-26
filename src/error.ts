@@ -1,78 +1,70 @@
-import { ErrorHandlerConfig, ErrorMap, ExtendsAxiosRequestConfig, StringIndex } from './types';
-import { AxiosResponse, AxiosInstance} from 'axios'
+import { ErrorHandlerConfig } from './types';
+import { AxiosResponse } from 'axios'
 import { transferStringTemplate, getValueByObjPath } from './utils';
-import Request from './request';
-
-export const defaultErrConfig: ErrorHandlerConfig = {
-  targetKey: "code",
-  validCode: [0],
-  defaultMsg: '({code}) Something goes wrong...',
-}
-export default class ErrorHandler extends Request{
+export class ErrorHandler{
+  private targetValue: string | number = ""
+  private isValidValue = true
+  private errMsg = ""
   private constructor(
-    public axiosInstance: AxiosInstance,
-    public errConfig: ErrorHandlerConfig = defaultErrConfig
+    private response: AxiosResponse,
+    private config: ErrorHandlerConfig
   ) {
-    super(axiosInstance)
-    if(this.errConfig) {
-      this.errConfig = {...defaultErrConfig, ...this.errConfig}
-    }
-    this.onResponse(res => this.handleErrResponse(res))
+    this.handleErrorResponse()
   }
 
-  static create(
-    axiosInstance: AxiosInstance,
-    config?: ErrorHandlerConfig
+  static register(
+    response: AxiosResponse,
+    config: ErrorHandlerConfig
   ): ErrorHandler {
-    return new ErrorHandler(axiosInstance, config)
+    return new ErrorHandler(response, config)
   }
 
-  handleValidateStatus(status: number): boolean {
+  getTargetValue(): string | number {
+    const val = this.config.path && getValueByObjPath(this.config.path, this.response)
+    if(Array.isArray(val)) {
+      return val?.[0]
+    }
+    else if(!this.config.path && (typeof this.response === 'number' || typeof this.response === 'string')) {
+      return this.response
+    }
+    return val || ""
+  }
+
+  handleErrorResponse(): void {
+    this.targetValue = this.getTargetValue()
+    this.errMsg = this.getErrMsg()
+    this.isValidValue = this.getValueValidation()
+    if(!this.isValidValue) {
+      this.config.handleMsg?.(this.errMsg, this.targetValue)
+    }
+
+  }
+
+  getErrMsg(): string {
+    const msg = this.config.map?.[this.targetValue]
+      || this.config.defaultMsg
+      || `Error occurred!`
+    const params = {
+      [this.config.templateKey as string]: this.targetValue
+    }
+    return transferStringTemplate(msg, params)
+  }
+
+  getValueValidation(): boolean {
+    const silentValue = this.config.silentValue
+    if(typeof silentValue === 'string' || typeof silentValue === 'number' ) {
+      return silentValue === this.config.silentValue
+    }
+    else if(Array.isArray(silentValue)) {
+      return silentValue.includes(this.targetValue)
+    }
+    else if(typeof silentValue === 'function') {
+      return silentValue(this.targetValue)
+    }
+    else if(typeof silentValue === 'undefined') {
+      return !this.errMsg
+    }
     return true
-  }
-
-  handleErrResponse(res: AxiosResponse): AxiosResponse {
-    const resConfig = res.config as ExtendsAxiosRequestConfig
-    if(!this.errConfig) return res
-    // 處理回傳狀態
-    const statusTarget = this.errConfig.statusMap?.[res.status]
-    if(this.errConfig.statusMap?.[res.status]) {
-      throw transferStringTemplate(statusTarget, {code: res.status})
-    }
-    // 處理回傳的錯誤代碼
-    const targetKey = this.errConfig.targetKey
-    const validCode = this.errConfig.validCode
-    let resCode = targetKey && getValueByObjPath(targetKey, res.data) as string
-    if(Array.isArray(resCode)) {
-      resCode = resCode[0]
-    }
-    const defaultMsg = this.errConfig.defaultMsg as string
-
-    let isValid
-
-    if(resCode === undefined) {
-      throw new Error(`The targetKey '${targetKey}' is not exist.`)
-    }
-
-    if(Array.isArray(validCode)) {
-      isValid = validCode.includes(resCode)
-    }else if(typeof validCode === 'string' || typeof validCode === 'number' ) {
-      isValid = validCode === resCode
-    }
-
-    if(!isValid) {
-      const errMap: ErrorMap = {...this.errConfig.errMap, ...resConfig.errMap}
-      let msg = errMap[resCode] || defaultMsg
-      const params: {code: string; msg?: string} = {
-        code: resCode
-      }
-      msg = transferStringTemplate(msg, params)
-
-      throw msg
-    }
-
-
-    return res
   }
 
 }

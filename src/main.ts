@@ -1,14 +1,13 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ExtendsAxiosRequestConfig } from './types';
 import path from 'path'
-import ErrorHandler from './error';
 import Request from './request';
 import defaultApiHubConfig from './default'
 import { transferStringTemplate } from './utils'
+export * from './error'
 
 export default class ApiHub extends Request{
   private moduleRoot: ModuleRoot = {}
-  private errHandlerInstance?: ErrorHandler
 
   private constructor(
     axiosInstance: AxiosInstance,
@@ -67,21 +66,11 @@ export default class ApiHub extends Request{
           ...reqConfig
         }
 
-        // 有設定statusMap才綁定handleValidateStatus
-        if(this.errHandlerInstance?.errConfig.statusMap) {
-          axiosConfig.validateStatus =
-            this.errHandlerInstance.handleValidateStatus.bind(this.errHandlerInstance)
-        }
-
         return this.axiosInstance(axiosConfig)
       }
     }
     return modulehub
 
-  }
-
-  registerErrHandler(config?: ErrorHandlerConfig): void {
-    this.errHandlerInstance = ErrorHandler.create(this.axiosInstance, config)
   }
 
   toFormData(data: StringIndex): FormData {
