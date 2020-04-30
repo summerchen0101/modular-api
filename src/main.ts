@@ -1,7 +1,6 @@
 import { AxiosInstance } from 'axios'
 import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ExtendsAxiosRequestConfig } from './..';
 import path from 'path'
-import defaultApiHubConfig from './default'
 import { transferStringTemplate } from './utils'
 
 export default class ApiHub{
@@ -9,7 +8,7 @@ export default class ApiHub{
 
   private constructor(
     private axiosInstance: AxiosInstance,
-    private apiHubConfig: ApiHubConfig = defaultApiHubConfig)
+    private apiHubConfig?: ApiHubConfig)
   {
   }
 
@@ -31,7 +30,7 @@ export default class ApiHub{
     this.moduleRoot[moduleName] = this.createModule(module, apiModuleConfig)
   }
 
-  createModule(module: Module, apiModuleConfig: ApiHubConfig = {}): ModuleHub {
+  createModule(module: Module, apiModuleConfig?: ApiHubConfig): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
       modulehub[key] = (...args): Promise<ResponseData> => {
