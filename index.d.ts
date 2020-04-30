@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
+import { AxiosRequestConfig, AxiosInstance } from 'axios'
 
 export interface ExtendsAxiosRequestConfig extends AxiosRequestConfig {
   errMap?: {
@@ -81,3 +81,20 @@ export interface StringIndex {
 export type MethodType = "get" | 'post' | 'put' | 'delete'
 
 export type ResponseData = object
+
+export interface ApiHubInstance {
+  getModules: () => ModuleRoot;
+  registerMultiModule: (modules: MultiModuleConfig, apiModuleConfig?: ApiHubConfig) => void;
+  registerModule: (moduleName: string, module: Module, apiModuleConfig?: ApiHubConfig) => void;
+  createModule: (module: Module, apiModuleConfig: ApiHubConfig) => ModuleHub;
+  toFormData: (data: StringIndex) => FormData;
+}
+
+
+export interface ApiHubStatic extends ApiHubInstance{
+  bind: (axios: AxiosInstance, apiHubConfig?: ApiHubConfig) => ApiHubInstance;
+}
+
+declare const ApiHub: ApiHubStatic
+
+export default ApiHub

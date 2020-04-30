@@ -1,4 +1,4 @@
-import { ApiHubConfig } from './types'
+import { ApiHubConfig } from './..'
 
 export default {
   type: 'json'

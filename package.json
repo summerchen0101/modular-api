@@ -4,8 +4,7 @@
   "main": "dist/main.js",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack -w",
-    "test": "nodemon test/server"
+    "start": "tsc -w"
   },
   "devDependencies": {
     "@types/node": "^13.11.1",
@@ -23,5 +22,6 @@
   },
   "dependencies": {
     "axios": "^0.19.2"
-  }
+  },
+  "typings": "./index.d.ts"
 }

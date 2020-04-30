@@ -1,19 +1,16 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ExtendsAxiosRequestConfig } from './..';
 import path from 'path'
-import Request from './request';
 import defaultApiHubConfig from './default'
 import { transferStringTemplate } from './utils'
-export * from './error'
 
-export default class ApiHub extends Request{
+export default class ApiHub{
   private moduleRoot: ModuleRoot = {}
 
   private constructor(
-    axiosInstance: AxiosInstance,
+    private axiosInstance: AxiosInstance,
     private apiHubConfig: ApiHubConfig = defaultApiHubConfig)
   {
-    super(axiosInstance)
   }
 
   static bind(axios: AxiosInstance, apiHubConfig?: ApiHubConfig): ApiHub {
