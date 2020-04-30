@@ -59,6 +59,7 @@ export default class ApiHub{
           params: query,
           data,
           errMap: Object.assign({}, module.errMap, api.errMap),
+          ...api.custom,
           ...reqConfig
         }
 

@@ -55,6 +55,7 @@ export interface ApiData {
 export interface ApiLibItem {
   method: MethodType;
   url: string;
+  custom?: object;
   errMap?: {
     [key: string]: string;
   };
