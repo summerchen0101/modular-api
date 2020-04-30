@@ -15,6 +15,7 @@ export interface ErrorHandlerConfig {
     defaultMsg?: string;
     errMap?: ErrorMap;
     statusMap?: StatusMap;
+    params?: StringIndex;
 }
 export interface MultiModuleConfig {
     [moduleName: string]: Module;

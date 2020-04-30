@@ -4,7 +4,8 @@
   "main": "dist/main.js",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack -w"
+    "dev": "webpack -w",
+    "test": "nodemon test/server"
   },
   "devDependencies": {
     "@types/node": "^13.11.1",
