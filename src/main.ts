@@ -1,20 +1,15 @@
 import { AxiosInstance } from 'axios'
-import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ErrorHandlerConfig, ExtendsAxiosRequestConfig } from './types';
+import { StringIndex, ApiHubConfig, Module, MultiModuleConfig, ModuleHub, ResponseData, ModuleRoot, ExtendsAxiosRequestConfig } from './..';
 import path from 'path'
-import ErrorHandler from './error';
-import Request from './request';
-import defaultApiHubConfig from './default'
 import { transferStringTemplate } from './utils'
 
-export default class ApiHub extends Request{
+export default class ApiHub{
   private moduleRoot: ModuleRoot = {}
-  private errHandlerInstance?: ErrorHandler
 
   private constructor(
-    axiosInstance: AxiosInstance,
-    private apiHubConfig: ApiHubConfig = defaultApiHubConfig)
+    private axiosInstance: AxiosInstance,
+    private apiHubConfig?: ApiHubConfig)
   {
-    super(axiosInstance)
   }
 
   static bind(axios: AxiosInstance, apiHubConfig?: ApiHubConfig): ApiHub {
@@ -35,7 +30,7 @@ export default class ApiHub extends Request{
     this.moduleRoot[moduleName] = this.createModule(module, apiModuleConfig)
   }
 
-  createModule(module: Module, apiModuleConfig: ApiHubConfig = {}): ModuleHub {
+  createModule(module: Module, apiModuleConfig?: ApiHubConfig): ModuleHub {
     const modulehub: ModuleHub = {}
     for(const key in module.apis) {
       modulehub[key] = (...args): Promise<ResponseData> => {
@@ -67,21 +62,11 @@ export default class ApiHub extends Request{
           ...reqConfig
         }
 
-        // 有設定statusMap才綁定handleValidateStatus
-        if(this.errHandlerInstance?.errConfig.statusMap) {
-          axiosConfig.validateStatus =
-            this.errHandlerInstance.handleValidateStatus.bind(this.errHandlerInstance)
-        }
-
         return this.axiosInstance(axiosConfig)
       }
     }
     return modulehub
 
-  }
-
-  registerErrHandler(config?: ErrorHandlerConfig): void {
-    this.errHandlerInstance = ErrorHandler.create(this.axiosInstance, config)
   }
 
   toFormData(data: StringIndex): FormData {
