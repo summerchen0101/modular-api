@@ -5,6 +5,12 @@
   "files": [
     "dist/**"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/summerchen0101/modular-api.git"
+  },
+  "homepage": "https://github.com/summerchen0101/modular-api",
+  "author": "Summer Chen",
   "license": "MIT",
   "scripts": {
     "start": "tsc -w"
